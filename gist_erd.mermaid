@@ -1,0 +1,49 @@
+erDiagram
+    USERS {
+        bigint id PK
+        string email
+        string hashed_password
+        naive_datetime inserted_at
+        naive_datetime updated_at
+    }
+
+    GISTS {
+        bigint id PK
+        bigint user_id FK
+        text description
+        naive_datetime inserted_at
+        naive_datetime updated_at
+    }
+
+    FILES {
+        bigint id PK
+        bigint gist_id FK
+        string filename
+        text content
+        string language
+        naive_datetime inserted_at
+        naive_datetime updated_at
+    }
+
+    COMMENTS {
+        bigint id PK
+        bigint user_id FK
+        bigint gist_id FK
+        text body
+        naive_datetime inserted_at
+        naive_datetime updated_at
+    }
+
+    FAVORITES {
+        bigint id PK
+        bigint user_id FK
+        bigint gist_id FK
+        naive_datetime inserted_at
+    }
+
+    USERS ||--o{ GISTS : "has many"
+    GISTS ||--|{ FILES : "has many"
+    USERS ||--o{ COMMENTS : "writes"
+    GISTS ||--o{ COMMENTS : "has many"
+    USERS ||--o{ FAVORITES : "saves"
+    GISTS ||--o{ FAVORITES : "saved by"
