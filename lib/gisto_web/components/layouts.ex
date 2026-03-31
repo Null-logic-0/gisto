@@ -65,31 +65,37 @@ defmodule GistoWeb.Layouts do
               <.icon name="hero-plus" class="size-5 opacity-75 hover:opacity-100" />
             </.button>
           </li>
-          <.user_dropdown>
-            <%= if @current_scope do %>
-              <li class="text-center pb-2">
-                {@current_scope.user.username}
-              </li>
-              <hr />
-              <li class="pt-2 font-sm font-medium hover:text-primary transition-colors">
-                <.link navigate={~p"/gists"}>{@current_scope.user.username}'s gists</.link>
-              </li>
-              <li class="pt-2 font-sm font-medium hover:text-primary transition-colors">
-                <.link navigate={~p"/users/settings"}>Settings</.link>
-              </li>
-              <li class="font-sm font-medium hover:text-error transition-colors">
-                <.link navigate={~p"/users/log-out"} method="delete">Log out</.link>
-              </li>
-            <% else %>
-              <li class="font-sm font-medium hover:text-primary transition-colors">
-                <.link navigate={~p"/users/register"}>Register</.link>
-              </li>
-              <li class="font-sm font-medium hover:text-primary transition-colors">
-                <.link navigate={~p"/users/log-in"}>Log in</.link>
-              </li>
-            <% end %>
-          </.user_dropdown>
         <% end %>
+        <.user_dropdown>
+          <%= if @current_scope do %>
+            <li class="text-center pb-2">
+              {@current_scope.user.username}
+            </li>
+            <hr />
+            <li class="pt-2 font-sm font-medium hover:text-primary transition-colors">
+              <.link navigate={~p"/gists"}>{@current_scope.user.username}'s gists</.link>
+            </li>
+            <li class="pt-2 font-sm font-medium hover:text-primary transition-colors">
+              <.link navigate={~p"/users/settings"}>Settings</.link>
+            </li>
+            <li class="font-sm font-medium hover:text-error transition-colors">
+              <.link
+                href={~p"/users/log-out"}
+                method="delete"
+                class="font-sm font-medium hover:text-error transition-colors"
+              >
+                Log out
+              </.link>
+            </li>
+          <% else %>
+            <li class="font-sm font-medium hover:text-primary transition-colors">
+              <.link navigate={~p"/users/register"}>Register</.link>
+            </li>
+            <li class="font-sm font-medium hover:text-primary transition-colors">
+              <.link navigate={~p"/users/log-in"}>Log in</.link>
+            </li>
+          <% end %>
+        </.user_dropdown>
       </ul>
     </header>
 

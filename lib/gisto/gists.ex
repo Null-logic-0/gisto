@@ -25,6 +25,16 @@ defmodule Gisto.Gists do
     Phoenix.PubSub.subscribe(Gisto.PubSub, "user:#{key}:gists")
   end
 
+  def subscribe_gists(nil), do: :ok
+
+  def subscribe_gists do
+    Phoenix.PubSub.subscribe(Gisto.PubSub, "gists")
+  end
+
+  # defp broadcast_gist(message) do
+  #   Phoenix.PubSub.broadcast(Gisto.PubSub, "gists", message)
+  # end
+
   defp broadcast_gist(%Scope{} = scope, message) do
     key = scope.user.id
 
@@ -42,6 +52,11 @@ defmodule Gisto.Gists do
   """
   def list_gists(%Scope{} = scope) do
     Repo.all_by(Gist, user_id: scope.user.id)
+    |> Repo.preload(user: :gists)
+  end
+
+  def list_gists() do
+    Repo.all(Gist)
     |> Repo.preload(user: :gists)
   end
 

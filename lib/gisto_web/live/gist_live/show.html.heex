@@ -1,28 +1,29 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
   <div class="flex items-center justify-end gap-2 shrink-0">
-    <button
-      class="btn btn-info btn-sm gap-2 font-mono"
-      phx-hook="CopyCode"
-      id="copy-btn"
-    >
-      <.icon name="hero-document-duplicate-solid" /> Copy
-    </button>
+    <%= if @current_scope.user && @current_scope.user.id == @gist.user_id  do %>
+      <.button
+        class="btn btn-info btn-sm gap-2 font-mono"
+        phx-hook="CopyCode"
+        id="copy-btn"
+      >
+        <.icon name="hero-document-duplicate-solid" /> Copy
+      </.button>
 
-    <.button
-      navigate={~p"/gists/#{@gist}/edit?return_to=show"}
-      class="btn btn-primary btn-sm gap-2"
-    >
-      <.icon name="hero-pencil-square" class="size-4" /> Edit
-    </.button>
+      <.button
+        navigate={~p"/gists/#{@gist}/edit?return_to=show"}
+        class="btn btn-primary btn-sm gap-2"
+      >
+        <.icon name="hero-pencil-square" class="size-4" /> Edit
+      </.button>
 
-    <.button
-      phx-click={JS.push("delete", value: %{id: @gist.id})}
-      data-confirm="Are you sure?"
-      class="btn btn-error btn-sm gap-2"
-    >
-      <.icon name="hero-trash" class="size-4" /> Delete
-    </.button>
-
+      <.button
+        phx-click={JS.push("delete", value: %{id: @gist.id})}
+        data-confirm="Are you sure?"
+        class="btn btn-error btn-sm gap-2"
+      >
+        <.icon name="hero-trash" class="size-4" /> Delete
+      </.button>
+    <% end %>
     <.button
       navigate={~p"/gists"}
       class="btn btn-secondary btn-sm btn-square"

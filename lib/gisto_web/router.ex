@@ -20,7 +20,9 @@ defmodule GistoWeb.Router do
   scope "/", GistoWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    #get "/", PageController, :home
+    
+    live "/", GistHome
   end
 
   # Other scopes may use custom stacks.

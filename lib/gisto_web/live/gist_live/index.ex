@@ -38,10 +38,12 @@ defmodule GistoWeb.GistLive.Index do
       Gists.subscribe_gists(socket.assigns.current_scope)
     end
 
-    {:ok,
-     socket
-     |> assign(:page_title, "Listing Gists")
-     |> stream(:gists, list_gists(socket.assigns.current_scope))}
+    socket =
+      socket
+      |> assign(:page_title, "My Gists")
+      |> stream(:gists, list_gists(socket.assigns.current_scope))
+
+    {:ok, socket}
   end
 
   @impl true
