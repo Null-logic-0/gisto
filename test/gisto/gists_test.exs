@@ -92,4 +92,88 @@ defmodule Gisto.GistsTest do
       assert %Ecto.Changeset{} = Gists.change_gist(scope, gist)
     end
   end
+
+  describe "saved_gists" do
+    alias Gisto.Gists.SavedGist
+
+    import Gisto.AccountsFixtures, only: [user_scope_fixture: 0]
+    import Gisto.GistsFixtures
+
+    @invalid_attrs %{}
+
+    test "list_saved_gists/1 returns all scoped saved_gists" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      saved_gist = saved_gist_fixture(scope)
+      other_saved_gist = saved_gist_fixture(other_scope)
+      assert Gists.list_saved_gists(scope) == [saved_gist]
+      assert Gists.list_saved_gists(other_scope) == [other_saved_gist]
+    end
+
+    test "get_saved_gist!/2 returns the saved_gist with given id" do
+      scope = user_scope_fixture()
+      saved_gist = saved_gist_fixture(scope)
+      other_scope = user_scope_fixture()
+      assert Gists.get_saved_gist!(scope, saved_gist.id) == saved_gist
+      assert_raise Ecto.NoResultsError, fn -> Gists.get_saved_gist!(other_scope, saved_gist.id) end
+    end
+
+    test "create_saved_gist/2 with valid data creates a saved_gist" do
+      valid_attrs = %{}
+      scope = user_scope_fixture()
+
+      assert {:ok, %SavedGist{} = saved_gist} = Gists.create_saved_gist(scope, valid_attrs)
+      assert saved_gist.user_id == scope.user.id
+    end
+
+    test "create_saved_gist/2 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      assert {:error, %Ecto.Changeset{}} = Gists.create_saved_gist(scope, @invalid_attrs)
+    end
+
+    test "update_saved_gist/3 with valid data updates the saved_gist" do
+      scope = user_scope_fixture()
+      saved_gist = saved_gist_fixture(scope)
+      update_attrs = %{}
+
+      assert {:ok, %SavedGist{} = saved_gist} = Gists.update_saved_gist(scope, saved_gist, update_attrs)
+    end
+
+    test "update_saved_gist/3 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      saved_gist = saved_gist_fixture(scope)
+
+      assert_raise MatchError, fn ->
+        Gists.update_saved_gist(other_scope, saved_gist, %{})
+      end
+    end
+
+    test "update_saved_gist/3 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      saved_gist = saved_gist_fixture(scope)
+      assert {:error, %Ecto.Changeset{}} = Gists.update_saved_gist(scope, saved_gist, @invalid_attrs)
+      assert saved_gist == Gists.get_saved_gist!(scope, saved_gist.id)
+    end
+
+    test "delete_saved_gist/2 deletes the saved_gist" do
+      scope = user_scope_fixture()
+      saved_gist = saved_gist_fixture(scope)
+      assert {:ok, %SavedGist{}} = Gists.delete_saved_gist(scope, saved_gist)
+      assert_raise Ecto.NoResultsError, fn -> Gists.get_saved_gist!(scope, saved_gist.id) end
+    end
+
+    test "delete_saved_gist/2 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      saved_gist = saved_gist_fixture(scope)
+      assert_raise MatchError, fn -> Gists.delete_saved_gist(other_scope, saved_gist) end
+    end
+
+    test "change_saved_gist/2 returns a saved_gist changeset" do
+      scope = user_scope_fixture()
+      saved_gist = saved_gist_fixture(scope)
+      assert %Ecto.Changeset{} = Gists.change_saved_gist(scope, saved_gist)
+    end
+  end
 end

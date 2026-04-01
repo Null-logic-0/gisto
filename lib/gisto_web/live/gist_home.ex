@@ -1,6 +1,7 @@
 defmodule GistoWeb.GistHome do
   use GistoWeb, :live_view
-  import GistoWeb.GistLive.GistCardComponent
+  import GistoWeb.Gist.GistCard
+  import GistoWeb.Gist.Search
 
   alias Gisto.Gists
 
@@ -26,27 +27,6 @@ defmodule GistoWeb.GistHome do
         </div>
       </div>
     </Layouts.app>
-    """
-  end
-
-  def search(assigns) do
-    ~H"""
-    <.form
-      for={@form}
-      id="search_form"
-      phx-change="search"
-      class="relative w-full"
-    >
-      <.input
-        type="search"
-        field={@form[:search]}
-        placeholder="Search..."
-        autocomplete="off"
-        phx-debounce="500"
-      />
-
-      <.icon name="hero-magnifying-glass" class="size-4 absolute top-1/3 right-3" />
-    </.form>
     """
   end
 

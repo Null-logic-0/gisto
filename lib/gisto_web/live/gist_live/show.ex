@@ -1,6 +1,6 @@
 defmodule GistoWeb.GistLive.Show do
   use GistoWeb, :live_view
-  import GistoWeb.GistLive.GistCardComponent
+  import GistoWeb.Gist.GistCard
   alias Gisto.Gists
 
   @impl true

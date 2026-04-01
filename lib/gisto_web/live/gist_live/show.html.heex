@@ -1,5 +1,5 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
-  <div class="flex items-center justify-end gap-2 shrink-0">
+  <div class="flex items-center justify-end gap-2 mb-6 shrink-0">
     <%= if @current_scope.user && @current_scope.user.id == @gist.user_id  do %>
       <.button
         class="btn btn-info btn-sm gap-2 font-mono"

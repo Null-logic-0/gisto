@@ -185,4 +185,120 @@ defmodule Gisto.Gists do
 
     Gist.changeset(gist, attrs, scope)
   end
+
+  alias Gisto.Gists.SavedGist
+  alias Gisto.Accounts.Scope
+
+  @doc """
+  Subscribes to scoped notifications about any saved_gist changes.
+
+  The broadcasted messages match the pattern:
+
+    * {:created, %SavedGist{}}
+    * {:updated, %SavedGist{}}
+    * {:deleted, %SavedGist{}}
+
+  """
+  def subscribe_saved_gists(%Scope{} = scope) do
+    key = scope.user.id
+
+    Phoenix.PubSub.subscribe(Gisto.PubSub, "user:#{key}:saved_gists")
+  end
+
+  defp broadcast_saved_gist(%Scope{} = scope, message) do
+    key = scope.user.id
+
+    Phoenix.PubSub.broadcast(Gisto.PubSub, "user:#{key}:saved_gists", message)
+  end
+
+  @doc """
+  Returns the list of saved_gists.
+
+  ## Examples
+
+      iex> list_saved_gists(scope)
+      [%SavedGist{}, ...]
+
+  """
+
+  def list_saved_gists(%Scope{} = scope) do
+    query =
+      from sg in SavedGist,
+        where: sg.user_id == ^scope.user.id,
+        preload: [:gist]
+
+    Repo.all(query)
+  end
+
+  @doc """
+  Gets a single saved_gist.
+
+  Raises `Ecto.NoResultsError` if the Saved gist does not exist.
+
+  ## Examples
+
+      iex> get_saved_gist!(scope, 123)
+      %SavedGist{}
+
+      iex> get_saved_gist!(scope, 456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_saved_gist!(%Scope{} = scope, id) do
+    SavedGist
+    |> where([sg], sg.id == ^id and sg.user_id == ^scope.user.id)
+    |> preload(:gist)
+    |> Repo.one!()
+  end
+
+  @doc """
+  Toggles saved or unsaved gists .
+
+  ## Examples
+
+      iex> toggle_saved_gist(scope, gist)
+
+
+  """
+  def toggle_saved_gist(%Scope{} = scope, %Gisto.Gists.Gist{} = gist) do
+    existing =
+      Repo.get_by(SavedGist, user_id: scope.user.id, gist_id: gist.id)
+
+    if existing do
+      {:ok, _} = Repo.delete(existing)
+      broadcast_saved_gist(scope, {:deleted, existing})
+      {:removed, existing}
+    else
+      %SavedGist{}
+      |> SavedGist.changeset(%{}, scope, gist)
+      |> Repo.insert()
+      |> case do
+        {:ok, saved_gist} ->
+          broadcast_saved_gist(scope, {:created, saved_gist})
+          {:added, saved_gist}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
+    end
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking saved_gist changes.
+
+  ## Examples
+
+      iex> change_saved_gist(scope, saved_gist)
+      %Ecto.Changeset{data: %SavedGist{}}
+
+  """
+  def change_saved_gist(
+        %Scope{} = scope,
+        %SavedGist{} = saved_gist,
+        attrs \\ %{}
+      ) do
+    true = saved_gist.user_id == scope.user.id
+
+    SavedGist.changeset(saved_gist, attrs, scope, saved_gist.gist)
+  end
 end

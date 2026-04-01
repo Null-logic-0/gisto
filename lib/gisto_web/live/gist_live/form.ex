@@ -1,15 +1,24 @@
 defmodule GistoWeb.GistLive.Form do
   use GistoWeb, :live_view
 
+  import GistoWeb.Gist.Form.GistForm
   alias Gisto.Gists
   alias Gisto.Gists.Gist
 
   @impl true
   def mount(params, _session, socket) do
-    {:ok,
-     socket
-     |> assign(:return_to, return_to(params["return_to"]))
-     |> apply_action(socket.assigns.live_action, params)}
+    return_to = return_to(params["return_to"])
+    current_scope = socket.assigns[:current_scope]
+    gist = socket.assigns[:gist]
+    return_path = return_path(current_scope, return_to, gist)
+
+    socket =
+      socket
+      |> assign(:return_to, return_to)
+      |> assign(:return_path, return_path)
+      |> apply_action(socket.assigns.live_action, params)
+
+    {:ok, socket}
   end
 
   defp return_to("show"), do: "show"

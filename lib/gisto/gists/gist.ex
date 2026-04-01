@@ -8,6 +8,7 @@ defmodule Gisto.Gists.Gist do
     field :markup_text, :string
 
     belongs_to :user, Gisto.Accounts.User
+    has_many :saved_gists, Gisto.Gists.SavedGist
 
     timestamps(type: :utc_datetime)
   end

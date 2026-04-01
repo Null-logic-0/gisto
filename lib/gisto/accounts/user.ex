@@ -12,6 +12,12 @@ defmodule Gisto.Accounts.User do
     field :authenticated_at, :utc_datetime, virtual: true
 
     has_many :gists, Gisto.Gists.Gist
+    has_many :saved_gists, Gisto.Gists.SavedGist
+
+    many_to_many :saved_gists_list, Gisto.Gists.Gist,
+      join_through: Gisto.Gists.SavedGist,
+      join_keys: [user_id: :id, gist_id: :id],
+      on_replace: :delete
 
     timestamps(type: :utc_datetime)
   end
@@ -144,5 +150,20 @@ defmodule Gisto.Accounts.User do
     |> validate_length(:username, min: 3, max: 32)
     |> unsafe_validate_unique(:username, Repo)
     |> unique_constraint(:username)
+  end
+
+  # --------------------------#
+  def registration_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email, :username, :password])
+    |> validate_required([:email, :username, :password])
+    |> validate_length(:username, min: 3, max: 32)
+    |> unsafe_validate_unique(:username, Repo)
+    |> unique_constraint(:username)
+    |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/, message: "must have @ and no spaces")
+    |> unsafe_validate_unique(:email, Repo)
+    |> unique_constraint(:email)
+    |> validate_length(:password, min: 12, max: 72)
+    |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(attrs[:password]))
   end
 end
