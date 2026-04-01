@@ -19,12 +19,12 @@ defmodule GistoWeb.GistLive.Index do
         </:actions>
       </.header>
 
-      <div
-        :for={{_id, gist} <- @streams.gists}
-        id="gists"
-        class="grid grid-cols-1 gap-6"
-      >
-        <div class="overflow-y-hidden border-b  border-base-300  max-h-[320px]">
+      <div id="gists" phx-update="stream" class="grid grid-cols-1 gap-8">
+        <div
+          :for={{id, gist} <- @streams.gists}
+          id={id}
+          class="overflow-y-hidden border-b border-base-300 max-h-[320px]"
+        >
           <.gist_card gist={gist} />
         </div>
       </div>
@@ -38,10 +38,12 @@ defmodule GistoWeb.GistLive.Index do
       Gists.subscribe_gists(socket.assigns.current_scope)
     end
 
+    gists = list_gists(socket.assigns.current_scope)
+
     socket =
       socket
-      |> assign(:page_title, "My Gists")
-      |> stream(:gists, list_gists(socket.assigns.current_scope))
+      |> assign(:page_title, "#{socket.assigns.current_scope.user.username}'s Gists")
+      |> stream(:gists, gists)
 
     {:ok, socket}
   end

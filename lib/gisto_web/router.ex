@@ -20,8 +20,6 @@ defmodule GistoWeb.Router do
   scope "/", GistoWeb do
     pipe_through :browser
 
-    #get "/", PageController, :home
-    
     live "/", GistHome
   end
 

@@ -31,14 +31,19 @@ defmodule Gisto.Gists do
     Phoenix.PubSub.subscribe(Gisto.PubSub, "gists")
   end
 
-  # defp broadcast_gist(message) do
-  #   Phoenix.PubSub.broadcast(Gisto.PubSub, "gists", message)
-  # end
+  defp broadcast_gist(message, targets)
 
-  defp broadcast_gist(%Scope{} = scope, message) do
-    key = scope.user.id
+  defp broadcast_gist(message, targets) do
+    Enum.each(targets, fn
+      :global ->
+        Phoenix.PubSub.broadcast(Gisto.PubSub, "gists", message)
 
-    Phoenix.PubSub.broadcast(Gisto.PubSub, "user:#{key}:gists", message)
+      {:user, %Scope{} = scope} ->
+        key = scope.user.id
+        Phoenix.PubSub.broadcast(Gisto.PubSub, "user:#{key}:gists", message)
+    end)
+
+    :ok
   end
 
   @doc """
@@ -51,13 +56,32 @@ defmodule Gisto.Gists do
 
   """
   def list_gists(%Scope{} = scope) do
-    Repo.all_by(Gist, user_id: scope.user.id)
+    Gist
+    |> where(user_id: ^scope.user.id)
+    |> order_by([g], desc: g.inserted_at)
+    |> Repo.all()
     |> Repo.preload(user: :gists)
   end
 
-  def list_gists() do
-    Repo.all(Gist)
+  def list_all_gists(params \\ %{}) do
+    search = Map.get(params, "search", nil)
+
+    Gist
+    |> search_by(search)
+    |> order_by([g], desc: g.inserted_at)
+    |> Repo.all()
     |> Repo.preload(user: :gists)
+  end
+
+  defp search_by(query, search) when search in ["", nil], do: query
+
+  defp search_by(query, search) when is_binary(search) do
+    where(
+      query,
+      [r],
+      ilike(r.file_name, ^"%#{search}%") or
+        ilike(r.description, ^"%#{search}%")
+    )
   end
 
   @doc """
@@ -96,7 +120,7 @@ defmodule Gisto.Gists do
            %Gist{}
            |> Gist.changeset(attrs, scope)
            |> Repo.insert() do
-      broadcast_gist(scope, {:created, gist})
+      broadcast_gist({:created, gist}, [:global, {:user, scope}])
       {:ok, gist}
     end
   end
@@ -120,7 +144,7 @@ defmodule Gisto.Gists do
            gist
            |> Gist.changeset(attrs, scope)
            |> Repo.update() do
-      broadcast_gist(scope, {:updated, gist})
+      broadcast_gist({:updated, gist}, [:global, {:user, scope}])
       {:ok, gist}
     end
   end
@@ -142,7 +166,7 @@ defmodule Gisto.Gists do
 
     with {:ok, gist = %Gist{}} <-
            Repo.delete(gist) do
-      broadcast_gist(scope, {:deleted, gist})
+      broadcast_gist({:deleted, gist}, [:global, {:user, scope}])
       {:ok, gist}
     end
   end

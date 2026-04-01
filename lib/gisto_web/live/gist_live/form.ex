@@ -16,7 +16,7 @@ defmodule GistoWeb.GistLive.Form do
   defp return_to(_), do: "index"
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    gist = Gists.get_gist!(socket.assigns.current_socpe, id)
+    gist = Gists.get_gist!(socket.assigns.current_scope, id)
 
     socket
     |> assign(:page_title, "Edit Gist")

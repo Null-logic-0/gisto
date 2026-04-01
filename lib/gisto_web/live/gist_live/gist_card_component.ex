@@ -1,5 +1,5 @@
 defmodule GistoWeb.GistLive.GistCardComponent do
-  use GistoWeb, :live_component
+  use GistoWeb, :html
 
   def gist_card(assigns) do
     ~H"""

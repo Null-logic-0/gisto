@@ -1,25 +1,27 @@
 defmodule GistoWeb.GistHome do
   use GistoWeb, :live_view
   import GistoWeb.GistLive.GistCardComponent
+
   alias Gisto.Gists
 
   on_mount {GistoWeb.UserAuth, :mount_current_scope}
 
+  @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_scope={@current_scope} current_path={@current_path}>
       <.header>
-        <h1 class="text-3xl font-semibold">
-          All Gists
-        </h1>
+        <div class="mx-auto mb-12 w-full max-w-2xl">
+          <.search form={@form} />
+        </div>
       </.header>
 
-      <div
-        :for={{_id, gist} <- @streams.gists}
-        id="gists"
-        class="grid grid-cols-1 gap-6"
-      >
-        <div class="overflow-y-hidden border-b  border-base-300  max-h-[320px]">
+      <div id="gists" phx-update="stream" class="grid grid-cols-1 gap-8">
+        <div
+          :for={{id, gist} <- @streams.gists}
+          id={id}
+          class="overflow-y-hidden border-b border-base-300 max-h-[320px]"
+        >
           <.gist_card gist={gist} />
         </div>
       </div>
@@ -27,16 +29,73 @@ defmodule GistoWeb.GistHome do
     """
   end
 
+  def search(assigns) do
+    ~H"""
+    <.form
+      for={@form}
+      id="search_form"
+      phx-change="search"
+      class="relative w-full"
+    >
+      <.input
+        type="search"
+        field={@form[:search]}
+        placeholder="Search..."
+        autocomplete="off"
+        phx-debounce="500"
+      />
+
+      <.icon name="hero-magnifying-glass" class="size-4 absolute top-1/3 right-3" />
+    </.form>
+    """
+  end
+
+  @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
-      Gists.subscribe_gists(socket.assigns.current_scope)
+      Gists.subscribe_gists()
     end
 
+    {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(params, uri, socket) do
     socket =
       socket
       |> assign(:page_title, "All Gists")
-      |> stream(:gists, Gists.list_gists())
+      |> assign(:form, to_form(params))
+      |> assign(:current_path, URI.parse(uri).path)
+      |> stream(:gists, Gists.list_all_gists(params), reset: true)
 
-    {:ok, socket}
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("search", params, socket) do
+    params =
+      params
+      |> Map.take(~w(search))
+      |> Enum.reject(fn {_k, v} -> v == "" end)
+      |> Enum.into(%{})
+
+    url =
+      if map_size(params) > 0 do
+        "/?#{URI.encode_query(params)}"
+      else
+        "/"
+      end
+
+    {:noreply, push_patch(socket, to: url)}
+  end
+
+  @impl true
+  def handle_info({type, %Gisto.Gists.Gist{}}, socket)
+      when type in [:created, :updated] do
+    {:noreply, stream(socket, :gists, Gists.list_all_gists(), reset: true)}
+  end
+
+  def handle_info({:deleted, gist}, socket) do
+    {:noreply, stream_delete(socket, :gists, gist)}
   end
 end

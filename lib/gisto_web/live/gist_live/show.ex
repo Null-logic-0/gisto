@@ -1,7 +1,6 @@
 defmodule GistoWeb.GistLive.Show do
   use GistoWeb, :live_view
   import GistoWeb.GistLive.GistCardComponent
-
   alias Gisto.Gists
 
   @impl true
@@ -10,10 +9,12 @@ defmodule GistoWeb.GistLive.Show do
       Gists.subscribe_gists(socket.assigns.current_scope)
     end
 
+    gist = Gists.get_gist!(socket.assigns.current_scope, id)
+
     socket =
       socket
-      |> assign(:page_title, "Show Gist")
-      |> assign(:gist, Gists.get_gist!(socket.assigns.current_scope, id))
+      |> assign(:page_title, "#{gist.file_name}")
+      |> assign(:gist, gist)
 
     {:ok, socket}
   end

@@ -27,6 +27,7 @@ defmodule GistoWeb.Layouts do
 
   """
   attr :flash, :map, required: true, doc: "the map of flash messages"
+  attr :current_path, :string, required: false
 
   attr :current_scope, :map,
     default: nil,
@@ -36,24 +37,19 @@ defmodule GistoWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar fixed top-0 flex justify-between bg-base-300 px-4 sm:px-6 lg:px-8">
+    <header class="navbar fixed z-50 top-0 flex justify-between bg-base-300 px-4 sm:px-6 lg:px-8">
       <div class="flex items-center gap-4">
         <a href="/" class="flex w-fit items-center gap-2">
           <img src={~p"/images/logo.svg"} width="46" alt="logo" />
           <span class="text-xl font-semibold">GISTO</span>
         </a>
-        <div>
-          <label class="input">
-            <input
-              name=""
-              value=""
-              type="search"
-              placeholder="Search..."
-            />
-            <.icon name="hero-magnifying-glass" class="size-4" />
-          </label>
-        </div>
-        <.link navigate={~p"/"} class="font-sm font-medium hover:text-primary transition-colors">
+        <.link
+          navigate={~p"/"}
+          class={
+            "font-sm font-medium transition-colors " <>
+              if Map.get(assigns, :current_path, nil) == "/", do: "text-primary", else: "hover:text-primary"
+          }
+        >
           All Gists
         </.link>
       </div>
