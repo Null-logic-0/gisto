@@ -4,7 +4,8 @@ defmodule GistoWeb.Layouts do
   used by your application.
   """
   use GistoWeb, :html
-  import GistoWeb.CustomComponents
+  import GistoWeb.Components.AppHeader
+  import GistoWeb.Components.AppFooter
 
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
@@ -37,84 +38,32 @@ defmodule GistoWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <header class="navbar fixed z-50 top-0 flex justify-between bg-base-300 px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-4">
-        <a href="/" class="flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="46" alt="logo" />
-          <span class="text-xl font-semibold">GISTO</span>
-        </a>
-        <.link
-          navigate={~p"/"}
-          class={
-            "font-sm font-medium transition-colors " <>
-              if Map.get(assigns, :current_path, nil) == "/", do: "text-primary", else: "hover:text-primary"
-          }
-        >
-          All Gists
-        </.link>
-      </div>
+    <.app_header current_scope={@current_scope}>
+      <.link
+        navigate={~p"/"}
+        class={
+          "font-sm font-medium transition-colors " <>
+            if Map.get(assigns, :current_path, nil) == "/", do: "text-primary", else: "hover:text-primary"
+        }
+      >
+        All Gists
+      </.link>
+    </.app_header>
 
-      <ul class="flex   gap-4 items-center">
-        <%= if @current_scope do %>
-          <li>
-            <.button navigate={~p"/gists/new"} class="cursor-pointer">
-              <.icon name="hero-plus" class="size-5 opacity-75 hover:opacity-100" />
-            </.button>
-          </li>
-        <% end %>
-        <.user_dropdown>
-          <%= if @current_scope do %>
-            <li class="text-center pb-2">
-              {@current_scope.user.username}
-            </li>
-            <hr />
-            <li class="pt-2 font-sm font-medium hover:text-primary transition-colors">
-              <.link navigate={~p"/gists"}>{@current_scope.user.username}'s gists</.link>
-            </li>
-            <li class="pt-2 font-sm font-medium hover:text-primary transition-colors">
-              <.link navigate={~p"/users/settings"}>Settings</.link>
-            </li>
-            <li class="font-sm font-medium hover:text-error transition-colors">
-              <.link
-                href={~p"/users/log-out"}
-                method="delete"
-                class="font-sm font-medium hover:text-error transition-colors"
-              >
-                Log out
-              </.link>
-            </li>
-          <% else %>
-            <li class="font-sm font-medium hover:text-primary transition-colors">
-              <.link navigate={~p"/users/register"}>Register</.link>
-            </li>
-            <li class="font-sm font-medium hover:text-primary transition-colors">
-              <.link navigate={~p"/users/log-in"}>Log in</.link>
-            </li>
-          <% end %>
-        </.user_dropdown>
-      </ul>
-    </header>
-
-    <.banner title="Instantly share code, notes, and snippets." />
+    <div class="w-full h-64 flex items-center justify-center text-base-400 text-3xl
+                bg-gradient-to-b from-primary   to-base-100 ">
+      <h1>
+        Instantly share code, notes, and snippets.
+      </h1>
+    </div>
 
     <div class="mx-auto max-w-5xl  space-y-4 px-4 py-6 sm:px-6 lg:px-8">
       <main>
         {render_slot(@inner_block)}
       </main>
-      <footer class="w-full text-xs mt-24">
-        <div class="border-t-[1px] border-base-500 w-full"></div>
-        <div class="w-full flex justify-between  items-center py-6">
-          <div class="flex items-center gap-4">
-            <img src="/images/logo.svg" alt="Logo" width="36" />
-            <span>
-              © {Date.utc_today().year} Luka Tchelidze. All rights reserved.
-            </span>
-          </div>
-          <div>
-            <.theme_toggle />
-          </div>
-        </div>
-      </footer>
+      <.app_footer>
+        <.theme_toggle />
+      </.app_footer>
     </div>
 
     <.flash_group flash={@flash} />

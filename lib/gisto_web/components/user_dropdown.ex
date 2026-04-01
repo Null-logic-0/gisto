@@ -1,6 +1,5 @@
-defmodule GistoWeb.CustomComponents do
-  use Phoenix.Component
-  import GistoWeb.CoreComponents
+defmodule GistoWeb.Components.UserDropdown do
+  use GistoWeb, :html
 
   @doc """
   User dropdown menu with Settings and Log out links.
@@ -19,22 +18,6 @@ defmodule GistoWeb.CustomComponents do
       >
         {render_slot(@inner_block)}
       </ul>
-    </div>
-    """
-  end
-
-  @doc """
-  Gradient banner using a `title` assign
-
-  ## Example
-    <.banner title="title" />
-  """
-
-  def banner(assigns) do
-    ~H"""
-    <div class="w-full h-64 flex items-center justify-center text-base-400 text-3xl
-                bg-gradient-to-b from-primary   to-base-100 ">
-      <h1>{@title}</h1>
     </div>
     """
   end
