@@ -8,7 +8,7 @@ defmodule GistoWeb.Gist.GistCard do
   def gist_card(assigns) do
     ~H"""
     <div class="space-y-2">
-      <.gist_card_header gist={@gist} />
+      <.gist_card_header gist={@gist} current_scope={@current_scope} />
 
       <div class="card border border-base-300 shadow-sm overflow-hidden bg-base-100">
         <.gist_info_bar gist={@gist} />

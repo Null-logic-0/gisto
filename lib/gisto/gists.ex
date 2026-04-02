@@ -220,35 +220,25 @@ defmodule Gisto.Gists do
       [%SavedGist{}, ...]
 
   """
-
   def list_saved_gists(%Scope{} = scope) do
-    query =
-      from sg in SavedGist,
-        where: sg.user_id == ^scope.user.id,
-        preload: [:gist]
-
-    Repo.all(query)
+    from(g in Gist,
+      join: sg in SavedGist,
+      on: sg.gist_id == g.id,
+      where: sg.user_id == ^scope.user.id,
+      preload: [:user],
+      order_by: [desc: g.inserted_at]
+    )
+    |> Repo.all()
+    |> Enum.map(&%{&1 | saved?: true})
   end
 
-  @doc """
-  Gets a single saved_gist.
+  def gist_saved?(nil, _gist), do: false
 
-  Raises `Ecto.NoResultsError` if the Saved gist does not exist.
-
-  ## Examples
-
-      iex> get_saved_gist!(scope, 123)
-      %SavedGist{}
-
-      iex> get_saved_gist!(scope, 456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_saved_gist!(%Scope{} = scope, id) do
-    SavedGist
-    |> where([sg], sg.id == ^id and sg.user_id == ^scope.user.id)
-    |> preload(:gist)
-    |> Repo.one!()
+  def gist_saved?(%Scope{} = scope, %Gist{} = gist) do
+    Repo.exists?(
+      from sg in SavedGist,
+        where: sg.user_id == ^scope.user.id and sg.gist_id == ^gist.id
+    )
   end
 
   @doc """
@@ -260,26 +250,25 @@ defmodule Gisto.Gists do
 
 
   """
-  def toggle_saved_gist(%Scope{} = scope, %Gisto.Gists.Gist{} = gist) do
-    existing =
-      Repo.get_by(SavedGist, user_id: scope.user.id, gist_id: gist.id)
+  def toggle_saved_gist(%Scope{} = scope, %Gist{} = gist) do
+    case Repo.get_by(SavedGist, user_id: scope.user.id, gist_id: gist.id) do
+      nil ->
+        %SavedGist{}
+        |> SavedGist.changeset(%{}, scope, gist)
+        |> Repo.insert()
+        |> case do
+          {:ok, saved_gist} ->
+            broadcast_saved_gist(scope, {:created, saved_gist})
+            {:added, saved_gist}
 
-    if existing do
-      {:ok, _} = Repo.delete(existing)
-      broadcast_saved_gist(scope, {:deleted, existing})
-      {:removed, existing}
-    else
-      %SavedGist{}
-      |> SavedGist.changeset(%{}, scope, gist)
-      |> Repo.insert()
-      |> case do
-        {:ok, saved_gist} ->
-          broadcast_saved_gist(scope, {:created, saved_gist})
-          {:added, saved_gist}
+          {:error, changeset} ->
+            {:error, changeset}
+        end
 
-        {:error, changeset} ->
-          {:error, changeset}
-      end
+      existing ->
+        {:ok, _} = Repo.delete(existing)
+        broadcast_saved_gist(scope, {:deleted, existing})
+        {:removed, existing}
     end
   end
 

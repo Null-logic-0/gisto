@@ -6,6 +6,7 @@ defmodule Gisto.Gists.Gist do
     field :file_name, :string
     field :description, :string
     field :markup_text, :string
+    field :saved?, :boolean, virtual: true, default: false
 
     belongs_to :user, Gisto.Accounts.User
     has_many :saved_gists, Gisto.Gists.SavedGist

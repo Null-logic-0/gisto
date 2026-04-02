@@ -16,5 +16,6 @@ defmodule Gisto.Gists.SavedGist do
     |> validate_required([])
     |> put_assoc(:user, user_scope.user)
     |> put_assoc(:gist, gist)
+    |> unique_constraint([:user_id, :gist_id])
   end
 end

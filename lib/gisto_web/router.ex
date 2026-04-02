@@ -68,6 +68,8 @@ defmodule GistoWeb.Router do
       live "/gists/new", GistLive.Form, :new
       live "/gists/:id", GistLive.Show, :show
       live "/gists/:id/edit", GistLive.Form, :edit
+
+      live "/saved-gists", SavedGists
     end
   end
 

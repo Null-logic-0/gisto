@@ -18,9 +18,12 @@ defmodule GistoWeb.Gist.Card.GistCardHeader do
           <div class="badge badge-info badge-sm gap-1">
             <.icon name="hero-eye-solid" /> Public
           </div>
-          <div class="badge badge-ghost badge-sm gap-1">
-            <.icon name="hero-bookmark" />
-          </div>
+          <.live_component
+            module={GistoWeb.GistLive.GistBookmarkButton}
+            id={"bookmark-#{@gist.id}"}
+            gist={@gist}
+            current_scope={@current_scope}
+          />
         </div>
       </div>
       <p :if={@gist.description} class="text-sm text-base-content/50 mt-0.5 truncate">

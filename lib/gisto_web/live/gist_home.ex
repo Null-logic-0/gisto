@@ -23,7 +23,7 @@ defmodule GistoWeb.GistHome do
           id={id}
           class="overflow-y-hidden border-b border-base-300 max-h-[320px]"
         >
-          <.gist_card gist={gist} />
+          <.gist_card gist={gist} current_scope={@current_scope} />
         </div>
       </div>
     </Layouts.app>

@@ -23,7 +23,7 @@ defmodule GistoWeb.Components.NavMenu do
               <.link navigate={~p"/gists"}>{@current_scope.user.username}'s gists</.link>
             </li>
             <li class="pt-2 font-sm font-medium hover:text-primary transition-colors">
-              <%!-- <.link navigate={~p"/saved-gists"}>{@current_scope.user.username}'s saved gists</.link> --%>
+              <.link navigate={~p"/saved-gists"}>Saved gists</.link>
             </li>
             <li class="pt-2 font-sm font-medium hover:text-primary transition-colors">
               <.link navigate={~p"/users/settings"}>Settings</.link>
