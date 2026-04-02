@@ -34,4 +34,11 @@
   </div>
 
   <.gist_card gist={@gist} current_scope={@current_scope} />
+
+  <.live_component
+    module={GistoWeb.GistLive.GistComment}
+    id={"gist-comments-#{@gist.id}"}
+    gist={@gist}
+    current_scope={@current_scope}
+  />
 </Layouts.app>

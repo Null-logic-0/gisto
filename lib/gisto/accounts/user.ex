@@ -13,6 +13,7 @@ defmodule Gisto.Accounts.User do
 
     has_many :gists, Gisto.Gists.Gist
     has_many :saved_gists, Gisto.Gists.SavedGist
+    has_many :comments, Gisto.Comments.Comment
 
     many_to_many :saved_gists_list, Gisto.Gists.Gist,
       join_through: Gisto.Gists.SavedGist,

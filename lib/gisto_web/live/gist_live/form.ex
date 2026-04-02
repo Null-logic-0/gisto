@@ -9,6 +9,8 @@ defmodule GistoWeb.GistLive.Form do
   def mount(params, _session, socket) do
     return_to = return_to(params["return_to"])
     current_scope = socket.assigns[:current_scope]
+    socket = apply_action(socket, socket.assigns.live_action, params)
+
     gist = socket.assigns[:gist]
     return_path = return_path(current_scope, return_to, gist)
 

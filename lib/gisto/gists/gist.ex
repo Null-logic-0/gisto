@@ -10,6 +10,7 @@ defmodule Gisto.Gists.Gist do
 
     belongs_to :user, Gisto.Accounts.User
     has_many :saved_gists, Gisto.Gists.SavedGist
+    has_many :comments, Gisto.Comments.Comment
 
     timestamps(type: :utc_datetime)
   end
