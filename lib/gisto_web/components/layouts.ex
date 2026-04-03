@@ -51,8 +51,8 @@ defmodule GistoWeb.Layouts do
     </.app_header>
 
     <div class="w-full h-64 flex items-center justify-center text-base-400 text-3xl
-                bg-gradient-to-b from-primary   to-base-100 ">
-      <h1>
+                bg-gradient-to-b from-primary text-center   to-base-100 ">
+      <h1 class="p-4">
         Instantly share code, notes, and snippets.
       </h1>
     </div>
