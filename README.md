@@ -62,6 +62,24 @@ Or run it inside IEx (Interactive Elixir) for debugging:
 
 Open your browser and navigate to **http://localhost:4000.**
 
+
+
+## 🎥 See It In Action
+
+Check out this quick demo of how easy it is to create and share a snippet using Gisto:
+
+
+https://github.com/user-attachments/assets/a3e82973-0d0a-4b04-926d-55dd2381a6dd
+
+https://github.com/user-attachments/assets/6bd9b0c7-ea59-4aab-80ad-32c14bc32b61
+
+https://github.com/user-attachments/assets/12cd5cec-4728-4d7c-a326-1d708cb4ecbd
+
+https://github.com/user-attachments/assets/93194802-a813-4d41-a741-db472cd1216f
+
+
+
+
 ## 📝 License
 
 This project is licensed under the MIT License - see the 
