@@ -51,7 +51,7 @@ defmodule GistoWeb.GistLive.Show do
 
   def handle_info({type, %Comments.Comment{}}, socket)
       when type in [:created, :updated, :deleted] do
-    send_update(GistoWeb.GistLive.GistComment,
+    send_update(GistoWeb.Gist.GistComment,
       id: "gist-comments-#{socket.assigns.gist.id}"
     )
 
