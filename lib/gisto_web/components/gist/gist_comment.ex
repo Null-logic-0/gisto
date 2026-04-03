@@ -1,4 +1,4 @@
-defmodule GistoWeb.GistLive.GistComment do
+defmodule GistoWeb.Gist.GistComment do
   use GistoWeb, :live_component
   alias Gisto.Comments
   alias Gisto.Comments.Comment

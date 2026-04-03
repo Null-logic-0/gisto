@@ -7,6 +7,7 @@ defmodule GistoWeb.Gist.Search do
       for={@form}
       id="search_form"
       phx-change="search"
+      phx-target={@target}
       class="relative w-full"
     >
       <.input

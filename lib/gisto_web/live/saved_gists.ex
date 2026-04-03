@@ -1,6 +1,6 @@
 defmodule GistoWeb.SavedGists do
   use GistoWeb, :live_view
-  import GistoWeb.Gist.GistCard
+  # import GistoWeb.Gist.GistCard
   require Logger
 
   alias Gisto.Gists
@@ -10,15 +10,13 @@ defmodule GistoWeb.SavedGists do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div id="saved-gists" phx-update="stream" class="grid grid-cols-1 gap-8">
-        <div
-          :for={{id, saved_gist} <- @streams.saved_gists}
-          id={id}
-          class="overflow-y-hidden border-b border-base-300 max-h-[320px]"
-        >
-          <.gist_card gist={saved_gist} current_scope={@current_scope} />
-        </div>
-      </div>
+      <.live_component
+        module={GistoWeb.Gist.GistList}
+        id="saved-gists"
+        current_scope={@current_scope}
+        base_path={~p"/saved-gists"}
+        fetch_fn={fn params -> Gists.list_saved_gists(@current_scope, params) end}
+      />
     </Layouts.app>
     """
   end
@@ -31,24 +29,28 @@ defmodule GistoWeb.SavedGists do
       Gists.subscribe_saved_gists(current_scope)
     end
 
-    saved_gists = Gists.list_saved_gists(current_scope)
-
     socket =
       socket
       |> assign(page_title: "#{current_scope.user.username}'s saved gists")
-      |> stream(:saved_gists, saved_gists)
 
     {:ok, socket}
   end
 
   @impl true
-  def handle_info({:created, %SavedGist{} = saved_gist}, socket) do
-    gist = Gists.get_gist!(socket.assigns.current_scope, saved_gist.gist_id)
-    {:noreply, stream_insert(socket, :saved_gists, %{gist | saved?: true})}
+  def handle_params(_params, uri, socket) do
+    {:noreply, assign(socket, :current_path, URI.parse(uri).path)}
   end
 
-  def handle_info({:deleted, %SavedGist{} = saved_gist}, socket) do
+  @impl true
+  def handle_info({type, %SavedGist{} = saved_gist}, socket)
+      when type in [:created, :deleted] do
     gist = Gists.get_gist!(socket.assigns.current_scope, saved_gist.gist_id)
-    {:noreply, stream_delete(socket, :saved_gists, gist)}
+    send_update(GistoWeb.Gist.GistList, id: "saved-gists", event: {type, gist})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:push_patch, url}, socket) do
+    {:noreply, push_patch(socket, to: url)}
   end
 end

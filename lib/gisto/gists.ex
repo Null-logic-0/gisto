@@ -55,22 +55,45 @@ defmodule Gisto.Gists do
       [%Gist{}, ...]
 
   """
-  def list_gists(%Scope{} = scope) do
+
+  def list_gists(%Scope{} = scope, params \\ %{}) do
     Gist
     |> where(user_id: ^scope.user.id)
-    |> order_by([g], desc: g.inserted_at)
-    |> Repo.all()
-    |> Repo.preload(user: :gists)
+    |> fetch_paginated(params)
   end
 
   def list_all_gists(params \\ %{}) do
-    search = Map.get(params, "search", nil)
-
     Gist
-    |> search_by(search)
-    |> order_by([g], desc: g.inserted_at)
-    |> Repo.all()
-    |> Repo.preload(user: :gists)
+    |> fetch_paginated(params)
+  end
+
+  defp fetch_paginated(base_query, params) do
+    search = Map.get(params, "search", nil)
+    page = String.to_integer(Map.get(params, "page", "1"))
+    per_page = 10
+
+    base_query =
+      base_query
+      |> search_by(search)
+      |> order_by([g], desc: g.inserted_at)
+
+    total = Repo.aggregate(base_query, :count)
+
+    gists =
+      base_query
+      |> paginate(page, per_page)
+      |> Repo.all()
+      |> then(&Repo.preload(&1, user: :gists))
+
+    %{gists: gists, total: total, page: page, per_page: per_page}
+  end
+
+  defp paginate(query, page, per_page) do
+    offset = max((page - 1) * per_page, 0)
+
+    query
+    |> limit(^per_page)
+    |> offset(^offset)
   end
 
   defp search_by(query, search) when search in ["", nil], do: query
@@ -216,20 +239,20 @@ defmodule Gisto.Gists do
 
   ## Examples
 
-      iex> list_saved_gists(scope)
+      iex> list_saved_gists(scope,params)
       [%SavedGist{}, ...]
 
   """
-  def list_saved_gists(%Scope{} = scope) do
+  def list_saved_gists(%Scope{} = scope, params \\ %{}) do
     from(g in Gist,
       join: sg in SavedGist,
       on: sg.gist_id == g.id,
-      where: sg.user_id == ^scope.user.id,
-      preload: [:user],
-      order_by: [desc: g.inserted_at]
+      where: sg.user_id == ^scope.user.id
     )
-    |> Repo.all()
-    |> Enum.map(&%{&1 | saved?: true})
+    |> fetch_paginated(params)
+    |> then(fn result ->
+      %{result | gists: Enum.map(result.gists, &%{&1 | saved?: true})}
+    end)
   end
 
   def gist_saved?(nil, _gist), do: false

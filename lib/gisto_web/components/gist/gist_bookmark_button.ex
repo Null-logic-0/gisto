@@ -1,4 +1,4 @@
-defmodule GistoWeb.GistLive.GistBookmarkButton do
+defmodule GistoWeb.Gist.GistBookmarkButton do
   use GistoWeb, :live_component
   alias Gisto.Gists
 

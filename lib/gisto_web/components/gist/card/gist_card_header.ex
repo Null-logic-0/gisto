@@ -19,7 +19,7 @@ defmodule GistoWeb.Gist.Card.GistCardHeader do
             <.icon name="hero-eye-solid" /> Public
           </div>
           <.live_component
-            module={GistoWeb.GistLive.GistBookmarkButton}
+            module={GistoWeb.Gist.GistBookmarkButton}
             id={"bookmark-#{@gist.id}"}
             gist={@gist}
             current_scope={@current_scope}
